@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+
+  vars:
+    pip_install_packages:
+      - name: docker
+
+  # Roles are imported from ansible
+  roles:
+    # For installing and configuring PIP
+    - role: pip
+    # For installing docker and docker-compose
+    - role: docker
