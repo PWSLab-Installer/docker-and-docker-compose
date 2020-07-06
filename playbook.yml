@@ -5,9 +5,39 @@
     pip_install_packages:
       - name: docker
 
-  # Roles are imported from ansible
-  roles:
-    # For installing and configuring PIP
-    - role: pip
-    # For installing docker and docker-compose
-    - role: docker
+  tasks:
+      
+    - name: Install Role PIP
+      local_action: command ansible-galaxy install -f geerlingguy.pip 
+
+    - name: Install Role Docker
+      local_action: command ansible-galaxy install -f geerlingguy.docker
+
+    - name: Check the version of CentOS
+      shell: |
+        cat: /etc/centos-release
+      register: cent_os
+      ignore_errors: yes
+
+    - name: Check if version of Ubuntu
+      shell: |
+        lsb_release -d
+      register: ubuntu_os
+      ignore_errors: yes
+
+    - name: Applying replacement on 20.04 or 8
+      lineinfile:
+          dest: ~/.ansible/roles/geerlingguy.pip/defaults/main.yml
+          regexp: '^pip_package: '
+          line: 'pip_package: python3-pip'
+          state: present
+      when:
+        - cent_os.stdout | regex_search("8") or ubuntu_os.stdout | regex_search("20.04")
+
+    - name: Installing PIP
+      include_role:
+        name: geerlingguy.pip
+    
+    - name: Installing Docker
+      include_role:
+          name: geerlingguy.docker
