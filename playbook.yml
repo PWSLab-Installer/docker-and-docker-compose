@@ -50,6 +50,7 @@
           state: present
       when:
         - cent_os.stdout | regex_search("8") or ubuntu_os.stdout | regex_search("20.04")
+        - not pip_exists.stat.exists
 
     - name: Installing PIP
       include_role:
